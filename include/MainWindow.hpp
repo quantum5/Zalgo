@@ -26,6 +26,7 @@ protected:
     HWND m_messMini, m_messNormal, m_messMax, m_messCustom;
     HWND m_messLevel, m_messUpDown;
     HWND m_mess, m_unmess, m_previewShow;
+    HWND m_nfc, m_nfd;
     MyDropTarget m_dropTarget;
     PreviewWindow *m_preview;
 private:

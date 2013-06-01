@@ -1,5 +1,6 @@
 #include <MainWindow.hpp>
 #include <Converter.hpp>
+#include <nlswrap.hpp>
 
 #include <resource.h>
 #include <commctrl.h>
@@ -10,7 +11,6 @@
 
 #include <limits.h>
 
-#define BGCOLOUR RGB(0xF0, 0xF0, 0xF0)
 #define LEFT(x, y, cx, cy) x, y, cx, cy
 #define RIGHT(x, y, cx, cy) (x - cx), y, cx, cy
 #define BOTTOM(x, y, cx, cy) x, (y - cy), cx, cy
@@ -27,6 +27,8 @@
 #define ZALGO_HE_GOES       0xBEEE
 #define ZALGO_PREVIEW       0xBEED
 #define ZALGO_MESSAGE       0xDEED
+#define TEXT_TO_NFC         0xA551
+#define TEXT_TO_NFD         0xA552
 
 #define ZALGO_INITIAL  (L"To invoke the hive-mind representing chaos.\r\n"\
                         L"Invoking the feeling of chaos.\r\n"\
@@ -59,6 +61,7 @@ UINT ZALGO_MESS_LEVEL_[3] = {6, 10, 14};
 #pragma comment(lib, "comdlg32.lib")
 
 WNDPROC wpOrigEditProc;
+DWORD rgbWindowBackground;
 
 LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -81,7 +84,8 @@ LRESULT MainWindow::OnCreate()
     GetClientRect(m_hwnd, &client);
     
     hFont = CreateFontIndirect(&ncmMetrics.lfMessageFont);
-    hBrush = CreateSolidBrush(BGCOLOUR);
+    hBrush = GetSysColorBrush(COLOR_WINDOW);
+    rgbWindowBackground = GetSysColor(COLOR_WINDOW);
     hFontMono = CreateFont(0, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                            CLEARTYPE_QUALITY, FF_MODERN, TEXT("Consolas"));
@@ -132,6 +136,13 @@ LRESULT MainWindow::OnCreate()
     m_previewShow = CreateWindow(WC_BUTTON, L"&Preview",
             WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
             m_hwnd, (HMENU) ZALGO_PREVIEW, GetInstance(), NULL);
+            
+    m_nfc = CreateWindow(WC_BUTTON, L"N&FC",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) TEXT_TO_NFC, GetInstance(), NULL);
+    m_nfd = CreateWindow(WC_BUTTON, L"NF&D",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) TEXT_TO_NFD, GetInstance(), NULL);
 
     PostMessage(m_messUpDown, UDM_SETRANGE32, 1, ZALGO_MESS_LEVEL_OF(ZALGO_MAX_MESS));
     PostMessage(m_messUpDown, UDM_SETPOS32, 0, ZALGO_MESS_LEVEL_OF(ZALGO_NORMAL_MESS));
@@ -148,6 +159,8 @@ LRESULT MainWindow::OnCreate()
     SETFONT(m_mess);
     SETFONT(m_unmess);
     SETFONT(m_previewShow);
+    SETFONT(m_nfc);
+    SETFONT(m_nfd);
 #undef SETFONT
     
     Button_SetCheck(m_goUp, 1);
@@ -186,6 +199,8 @@ LRESULT MainWindow::OnDestroy()
     DestroyWindow(m_mess);
     DestroyWindow(m_unmess);
     DestroyWindow(m_previewShow);
+    DestroyWindow(m_nfc);
+    DestroyWindow(m_nfd);
     delete m_preview;
     return 0;
 }
@@ -218,8 +233,10 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     case WM_SIZE: {
         RECT client;
+        HDWP hdwp;
         GetClientRect(m_hwnd, &client);
-#define REPOS(hwnd, k) SetWindowPos(hwnd, 0, k, SWP_NOACTIVATE|SWP_NOZORDER)
+#define REPOS(hwnd, k) hdwp = DeferWindowPos(hdwp, hwnd, 0, k, SWP_NOACTIVATE|SWP_NOZORDER)
+        hdwp = BeginDeferWindowPos(14);
         REPOS(m_message,    LEFT(12, 12, client.right - 24, client.bottom - 94));
         REPOS(m_goUp,       BOTTOM(12, client.bottom - 59, 140, 20));
         REPOS(m_goMiddle,   BOTTOM(12, client.bottom - 34, 140, 20));
@@ -228,10 +245,13 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         REPOS(m_messNormal, BOTTOM(160, client.bottom - 34, 120, 20));
         REPOS(m_messMax,    BOTTOM(160, client.bottom - 9,  120, 20));
         REPOS(m_messCustom, BOTTOM(280, client.bottom - 59, 120, 20));
-        REPOS(m_messLevel,  BOTTOM(280, client.bottom - 34, 100, 20));
+        REPOS(m_messLevel,  BOTTOM(280, client.bottom - 38, 100, 20));
         REPOS(m_mess,       BOTTOMRIGHT(client.right - 12, client.bottom - 41, 100, 25));
         REPOS(m_unmess,     BOTTOMRIGHT(client.right - 12, client.bottom - 12, 100, 25));
-        REPOS(m_previewShow,BOTTOMRIGHT(client.right - 117, client.bottom - 12, 100, 25));
+        REPOS(m_nfc,        BOTTOMRIGHT(client.right - 117, client.bottom - 41, 50, 25));
+        REPOS(m_nfd,        BOTTOMRIGHT(client.right - 117, client.bottom - 12, 50, 25));
+        REPOS(m_previewShow,BOTTOMRIGHT(client.right - 172, client.bottom - 12, 100, 25));
+        EndDeferWindowPos(hdwp);
 #undef REPOS
         PostMessage(m_messUpDown, UDM_SETBUDDY, (WPARAM) m_messLevel, 0);
         return 0;
@@ -249,9 +269,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     int textlen;
                     wchar_t *zalgo;
                     
-                    textlen = Edit_GetTextLength(m_message);
-                    text = new wchar_t[textlen+1];
-                    Edit_GetText(m_message, text, textlen+1);
+                    textlen = Edit_GetTextLength(m_message) + 1;
+                    text = new wchar_t[textlen];
+                    Edit_GetText(m_message, text, textlen);
                     
                     zalgo = ZalgoComes(text,
                         IsDlgButtonChecked(m_hwnd, ZALGO_GO_UP),
@@ -277,9 +297,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     int textlen;
                     wchar_t *zalgo;
                     
-                    textlen = Edit_GetTextLength(m_message);
-                    zalgo = new wchar_t[textlen+1];
-                    Edit_GetText(m_message, zalgo, textlen+1);
+                    textlen = Edit_GetTextLength(m_message) + 1;
+                    zalgo = new wchar_t[textlen];
+                    Edit_GetText(m_message, zalgo, textlen);
                     
                     text = ZalgoGoes(zalgo);
                     
@@ -295,12 +315,56 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ZALGO_PREVIEW: {
                 wchar_t *text;
                 int textlen;
-                textlen = Edit_GetTextLength(m_message);
+                textlen = Edit_GetTextLength(m_message) + 1;
                 text = new wchar_t[textlen];
                 Edit_GetText(m_message, text, textlen);
                 
                 SendMessage(m_preview->GetHWND(), WM_CHANGETEXT, 0, (LPARAM) text);
                 ShowWindow(m_preview->GetHWND(), SW_SHOW);
+            }
+            case TEXT_TO_NFC: {
+                wchar_t *orig, *nfc;
+                int bufsize;
+                int textlen;
+                
+                textlen = Edit_GetTextLength(m_message) + 1;
+                orig = new wchar_t[textlen];
+                Edit_GetText(m_message, orig, textlen);
+                
+                bufsize = ZalgoNormalizeString(MAP_PRECOMPOSED, orig, NULL, 0);
+                if (bufsize <= 0)
+                    goto nfccleanup;
+                nfc = new wchar_t[bufsize];
+                if (ZalgoNormalizeString(MAP_PRECOMPOSED, orig, nfc, bufsize) <= 0)
+                    goto nfccleanup;
+                Edit_SetText(m_message, nfc);
+                
+                nfccleanup:
+                delete nfc;
+                delete orig;
+                break;
+            }
+            case TEXT_TO_NFD: {
+                wchar_t *orig, *nfd;
+                int bufsize;
+                int textlen;
+                
+                textlen = Edit_GetTextLength(m_message) + 1;
+                orig = new wchar_t[textlen];
+                Edit_GetText(m_message, orig, textlen);
+                
+                bufsize = ZalgoNormalizeString(MAP_COMPOSITE, orig, NULL, 0);
+                if (bufsize <= 0)
+                    goto nfdcleanup;
+                nfd = new wchar_t[bufsize];
+                if (ZalgoNormalizeString(MAP_COMPOSITE, orig, nfd, bufsize) <= 0)
+                    goto nfdcleanup;
+                Edit_SetText(m_message, nfd);
+                
+                nfdcleanup:
+                delete nfd;
+                delete orig;
+                break;
             }
             case ZALGO_GO_UP:
             case ZALGO_GO_CENTER:
@@ -334,7 +398,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         HBRUSH white = CreateSolidBrush(RGB(255, 255, 255));
         if ((HWND) lParam == m_messLevel && IsWindowEnabled(m_messLevel))
             return (LRESULT) white;
-        SetBkColor((HDC) wParam, BGCOLOUR);
+        SetBkColor((HDC) wParam, rgbWindowBackground);
         return (LRESULT) hBrush;
     }
     case WM_KEYDOWN:
@@ -371,8 +435,8 @@ MainWindow *MainWindow::Create(LPCTSTR szTitle)
 {
     MainWindow *self = new MainWindow();
     if (self &&
-        self->WinCreateWindow(0,
-                szTitle, WS_OVERLAPPEDWINDOW,
+        self->WinCreateWindow(WS_EX_COMPOSITED,
+                szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                 CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
                 NULL, NULL)) {
         return self;
