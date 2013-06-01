@@ -75,6 +75,12 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         wParam, lParam);
 }
 
+BOOL MainWindow::WinRegisterClass(WNDCLASS *pwc)
+{
+    pwc->style = CS_HREDRAW | CS_VREDRAW;
+    return __super::WinRegisterClass(pwc);
+}
+
 LRESULT MainWindow::OnCreate()
 {
     NONCLIENTMETRICS ncmMetrics = { sizeof(NONCLIENTMETRICS) };

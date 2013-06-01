@@ -18,6 +18,7 @@ protected:
     LRESULT OnCreate();
     LRESULT OnDestroy();
     void OnPaint();
+    BOOL WinRegisterClass(WNDCLASS *pwc);
 
     virtual HICON GetIcon();
     
