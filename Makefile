@@ -3,7 +3,7 @@ INCDIR=include
 
 CXX=cl /nologo
 LD=link /nologo
-CXXFLAGS=/c /I$(INCDIR) /W4 /Zi /DWIN32_LEAN_AND_MEAN /DWINVER=0x0501 /D_WIN32_WINNT=0x0501 /wd4100 /DUNICODE /D_UNICODE
+CXXFLAGS=/c /O1 /I$(INCDIR) /W4 /Zi /DWIN32_LEAN_AND_MEAN /DWINVER=0x0501 /D_WIN32_WINNT=0x0501 /wd4100 /DUNICODE /D_UNICODE
 LDFLAGS=/subsystem:windows /debug /manifest /incremental:no /opt:REF
 LDFLAGS=$(LDFLAGS) "/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
 RC=rc /nologo
