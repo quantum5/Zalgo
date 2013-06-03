@@ -280,9 +280,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     Edit_GetText(m_message, text, textlen);
                     
                     zalgo = ZalgoComes(text,
-                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_UP),
-                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_CENTER),
-                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_DOWN),
+                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_UP) != 0,
+                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_CENTER) != 0,
+                        IsDlgButtonChecked(m_hwnd, ZALGO_GO_DOWN) != 0,
                         GetDlgItemInt(m_hwnd, ZALGO_MESS_LEVEL, NULL, FALSE));
                     
                     Edit_SetText(m_message, zalgo);
@@ -329,7 +329,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 ShowWindow(m_preview->GetHWND(), SW_SHOW);
             }
             case TEXT_TO_NFC: {
-                wchar_t *orig, *nfc;
+                wchar_t *orig, *nfc = NULL;
                 int bufsize;
                 int textlen;
                 
@@ -346,12 +346,13 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 Edit_SetText(m_message, nfc);
                 
                 nfccleanup:
-                delete nfc;
+                if (nfc)
+                    delete nfc;
                 delete orig;
                 break;
             }
             case TEXT_TO_NFD: {
-                wchar_t *orig, *nfd;
+                wchar_t *orig, *nfd = NULL;
                 int bufsize;
                 int textlen;
                 
@@ -368,7 +369,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 Edit_SetText(m_message, nfd);
                 
                 nfdcleanup:
-                delete nfd;
+                if (nfd)
+                    delete nfd;
                 delete orig;
                 break;
             }
