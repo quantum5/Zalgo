@@ -25,8 +25,9 @@ FILES=$(OUTDIR)\Zalgo.obj \
       $(OUTDIR)\MainWindow.obj \
       $(OUTDIR)\Window.obj \
       $(OUTDIR)\DropTarget.obj \
-      $(OUTDIR)\Converter.obj \
+      $(OUTDIR)\MainLogic.obj \
       $(OUTDIR)\PreviewWindow.obj \
+      $(OUTDIR)\NLSWrap.obj \
       $(OUTDIR)\MyDropTarget.obj \
       $(OUTDIR)\Zalgo.res
 
@@ -42,21 +43,19 @@ $(INCDIR)\MainWindow.hpp: $(INCDIR)\Window.hpp $(INCDIR)\MyDropTarget.hpp
 $(INCDIR)\PreviewWindow.hpp: $(INCDIR)\Window.hpp
 $(INCDIR)\MyDropTarget.hpp: $(INCDIR)\DropTarget.hpp
 
-$(SRCDIR)\MainWindow.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\Converter.hpp $(INCDIR)\PreviewWindow.hpp
+$(SRCDIR)\MainWindow.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\PreviewWindow.hpp
 $(SRCDIR)\DropTarget.cpp: $(INCDIR)\DropTarget.hpp
 $(SRCDIR)\MyDropTarget.cpp: $(INCDIR)\MyDropTarget.hpp
 $(SRCDIR)\Zalgo.cpp: $(INCDIR)\MainWindow.hpp
 $(SRCDIR)\PreviewWindow.cpp: $(INCDIR)\PreviewWindow.hpp
-$(SRCDIR)\Converter.cpp: $(INCDIR)\Converter.hpp
 $(SRCDIR)\Window.cpp: $(INCDIR)\Window.hpp
+$(SRCDIR)\NLSWrap.cpp: $(INCDIR)\NLSWrap.hpp
+$(SRCDIR)\MainLogic.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\NLSWrap.hpp
 
 $(OUTDIR)\Zalgo.res: Zalgo.rc
 	$(RC) $(RCFLAGS) /fo$@ $**
 
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj::
-	$(CXX) $(CXXFLAGS) /Fo$(OUTDIR)\ /Fd$(OUTDIR)\ $<
-
-{$(SRCDIR)}.c{$(OUTDIR)}.obj::
 	$(CXX) $(CXXFLAGS) /Fo$(OUTDIR)\ /Fd$(OUTDIR)\ $<
 
 $(DISTDIR)\Zalgo.exe: $(FILES)
