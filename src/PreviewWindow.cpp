@@ -1,5 +1,4 @@
 #include <PreviewWindow.hpp>
-#include <Converter.hpp>
 
 #include <resource.h>
 #include <windowsx.h>
@@ -284,7 +283,7 @@ LRESULT PreviewWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         for (LPTSTR i = lpLines[longest]; *i; ++i) {
             if (isupper(*i))
                 ++upper;
-            else if (!IsZalgo(*i))
+            else if (!(*i >= 0x0300 && *i < 0x0370 || *i == 0x489))
                 ++lower;
         }
         xClientMax = lower * xChar + upper * xUpper;
