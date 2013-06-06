@@ -77,8 +77,117 @@ const std::pair<wstring, wchar_t> latin_cyrillic_[] = {
     std::make_pair(L"Zh", 0x0416),
 };
 
+const std::pair<wchar_t, wstring> to_latin_[] = {
+    std::make_pair(0x0430, L"a"), std::make_pair(0x0431, L"b"),
+    std::make_pair(0x0432, L"v"), std::make_pair(0x0433, L"g"),
+    std::make_pair(0x0434, L"d"), std::make_pair(0x0435, L"e"),
+    std::make_pair(0x0451, L"e"), std::make_pair(0x0436, L"zh"),
+    std::make_pair(0x0437, L"z"), std::make_pair(0x0438, L"i"),
+    std::make_pair(0x0439, L"j"), std::make_pair(0x043a, L"k"),
+    std::make_pair(0x043b, L"l"), std::make_pair(0x043c, L"m"),
+    std::make_pair(0x043d, L"n"), std::make_pair(0x043e, L"o"),
+    std::make_pair(0x043f, L"p"), std::make_pair(0x0440, L"r"),
+    std::make_pair(0x0441, L"s"), std::make_pair(0x0442, L"t"),
+    std::make_pair(0x0443, L"u"), std::make_pair(0x0444, L"f"),
+    std::make_pair(0x0445, L"h"), std::make_pair(0x0446, L"ts"),
+    std::make_pair(0x0447, L"ch"),std::make_pair(0x0448, L"sh"),
+    std::make_pair(0x044a, L"\""),std::make_pair(0x0449, L"shch"),
+    std::make_pair(0x044b, L"y"), std::make_pair(0x044c, L"'"),
+    std::make_pair(0x044d, L"e"), std::make_pair(0x044e, L"yu"),
+    std::make_pair(0x044f, L"ya"),std::make_pair(0x0456, L"i"),
+    std::make_pair(0x0473, L"f"), std::make_pair(0x0463, L"ye"),
+    std::make_pair(0x0475, L"i"), std::make_pair(0x0455, L"dz"),
+    std::make_pair(0x046f, L"ks"),std::make_pair(0x0471, L"ps"),
+    std::make_pair(0x0461, L"o"), std::make_pair(0x046b, L"u"),
+    std::make_pair(0x0410, L"A"), std::make_pair(0x0411, L"B"),
+    std::make_pair(0x0412, L"V"), std::make_pair(0x0413, L"G"),
+    std::make_pair(0x0414, L"D"), std::make_pair(0x0415, L"E"),
+    std::make_pair(0x0401, L"E"), std::make_pair(0x0416, L"Zh"),
+    std::make_pair(0x0417, L"Z"), std::make_pair(0x0418, L"I"),
+    std::make_pair(0x0419, L"J"), std::make_pair(0x041a, L"K"),
+    std::make_pair(0x041b, L"L"), std::make_pair(0x041c, L"M"),
+    std::make_pair(0x041d, L"N"), std::make_pair(0x041e, L"O"),
+    std::make_pair(0x041f, L"P"), std::make_pair(0x0420, L"R"),
+    std::make_pair(0x0421, L"S"), std::make_pair(0x0422, L"T"),
+    std::make_pair(0x0423, L"U"), std::make_pair(0x0424, L"F"),
+    std::make_pair(0x0425, L"H"), std::make_pair(0x0426, L"Ts"),
+    std::make_pair(0x0427, L"Ch"),std::make_pair(0x0428, L"Sh"),
+    std::make_pair(0x042a, L"\""),std::make_pair(0x0429, L"Shch"),
+    std::make_pair(0x042b, L"Y"), std::make_pair(0x042c, L"'"),
+    std::make_pair(0x042d, L"E"), std::make_pair(0x042e, L"Yu"),
+    std::make_pair(0x042f, L"Ya"),std::make_pair(0x0406, L"I"),
+    std::make_pair(0x0472, L"F"), std::make_pair(0x0462, L"Ye"),
+    std::make_pair(0x0474, L"I"), std::make_pair(0x0405, L"Dz"),
+    std::make_pair(0x046e, L"Ks"),std::make_pair(0x0470, L"Ps"),
+    std::make_pair(0x0460, L"O"), std::make_pair(0x046a, L"U"),
+    std::make_pair(0x03b1, L"a"), std::make_pair(0x03b2, L"b"),
+    std::make_pair(0x03b3, L"g"), std::make_pair(0x03b4, L"d"),
+    std::make_pair(0x03b5, L"e"), std::make_pair(0x03b6, L"z"),
+    std::make_pair(0x03b7, L"e"), std::make_pair(0x03b8, L"th"),
+    std::make_pair(0x03b9, L"i"), std::make_pair(0x03ba, L"k"),
+    std::make_pair(0x03bb, L"l"), std::make_pair(0x03bc, L"m"),
+    std::make_pair(0x03bd, L"n"), std::make_pair(0x03be, L"x"),
+    std::make_pair(0x03bf, L"o"), std::make_pair(0x03c0, L"p"),
+    std::make_pair(0x03c1, L"r"), std::make_pair(0x03c3, L"s"),
+    std::make_pair(0x03c4, L"t"), std::make_pair(0x03c5, L"u"),
+    std::make_pair(0x03c6, L"f"), std::make_pair(0x03c7, L"ch"),
+    std::make_pair(0x03c8, L"ps"),std::make_pair(0x03c9, L"o"),
+    std::make_pair(0x0391, L"A"), std::make_pair(0x0392, L"B"),
+    std::make_pair(0x0393, L"G"), std::make_pair(0x0394, L"D"),
+    std::make_pair(0x0395, L"E"), std::make_pair(0x0396, L"Z"),
+    std::make_pair(0x0397, L"E"), std::make_pair(0x0398, L"Th"),
+    std::make_pair(0x0399, L"I"), std::make_pair(0x039a, L"K"),
+    std::make_pair(0x039b, L"L"), std::make_pair(0x039c, L"M"),
+    std::make_pair(0x039d, L"N"), std::make_pair(0x039e, L"X"),
+    std::make_pair(0x039f, L"O"), std::make_pair(0x03a0, L"P"),
+    std::make_pair(0x03a1, L"R"), std::make_pair(0x03a3, L"S"),
+    std::make_pair(0x03a4, L"T"), std::make_pair(0x03a5, L"U"),
+    std::make_pair(0x03a6, L"F"), std::make_pair(0x03a7, L"Ch"),
+    std::make_pair(0x03a8, L"Ps"),std::make_pair(0x03a9, L"O"),
+    std::make_pair(0x03c2, L"s"),
+};
+
+const std::pair<wstring, wchar_t> latin_greek_[] = {
+    std::make_pair(L"a", 0x03b1), std::make_pair(L"b", 0x03b2),
+    std::make_pair(L"c", 0x03c7), std::make_pair(L"d", 0x03b4),
+    std::make_pair(L"e", 0x03b5), std::make_pair(L"f", 0x03c6),
+    std::make_pair(L"g", 0x03b3), std::make_pair(L"h", 0x03c7),
+    std::make_pair(L"i", 0x03b9), std::make_pair(L"j", 0x03b7),
+    std::make_pair(L"k", 0x03ba), std::make_pair(L"l", 0x03bb),
+    std::make_pair(L"m", 0x03bc), std::make_pair(L"n", 0x03bd),
+    std::make_pair(L"o", 0x03bf), std::make_pair(L"p", 0x03c0),
+    std::make_pair(L"ps", 0x03c8),std::make_pair(L"q", 0x03ba),
+    std::make_pair(L"r", 0x03c1), std::make_pair(L"s", 0x03c3),
+    std::make_pair(L"t", 0x03c4), std::make_pair(L"th", 0x03b8),
+    std::make_pair(L"u", 0x03c5), std::make_pair(L"v", 0x03c6),
+    std::make_pair(L"w", 0x03c5), std::make_pair(L"x", 0x03be),
+    std::make_pair(L"y", 0x03c5), std::make_pair(L"z", 0x03b6),
+    std::make_pair(L"A", 0x0391), std::make_pair(L"B", 0x0392),
+    std::make_pair(L"C", 0x03a7), std::make_pair(L"D", 0x0394),
+    std::make_pair(L"E", 0x0395), std::make_pair(L"F", 0x03a6),
+    std::make_pair(L"G", 0x0393), std::make_pair(L"H", 0x03a7),
+    std::make_pair(L"I", 0x0399), std::make_pair(L"J", 0x0397),
+    std::make_pair(L"K", 0x039a), std::make_pair(L"L", 0x039b),
+    std::make_pair(L"M", 0x039c), std::make_pair(L"N", 0x039d),
+    std::make_pair(L"O", 0x039f), std::make_pair(L"P", 0x03a0),
+    std::make_pair(L"Ps", 0x03a8),std::make_pair(L"Q", 0x039a),
+    std::make_pair(L"R", 0x03a1), std::make_pair(L"S", 0x03a3),
+    std::make_pair(L"U", 0x03a5), std::make_pair(L"V", 0x03a6),
+    std::make_pair(L"W", 0x03a5), std::make_pair(L"X", 0x039e),
+    std::make_pair(L"Y", 0x03a5), std::make_pair(L"Z", 0x0396),
+    std::make_pair(L"T", 0x03a4), std::make_pair(L"Th", 0x0398),
+    std::make_pair(L"PS", 0x03a8),std::make_pair(L"TH", 0x0398),
+    
+    std::make_pair(L"ch", 0x03c7),std::make_pair(L"CH", 0x03a7),
+    std::make_pair(L"Ch", 0x03a7),
+};
+
 const std::unordered_map<wstring, wchar_t> latin_cyrillic(latin_cyrillic_,
     latin_cyrillic_ + ARRAYSIZE(latin_cyrillic_));
+const std::unordered_map<wchar_t, wstring> to_latin(to_latin_,
+    to_latin_ + ARRAYSIZE(to_latin_));
+const std::unordered_map<wstring, wchar_t> latin_greek(latin_greek_,
+    latin_greek_ + ARRAYSIZE(latin_greek_));
 
 inline int randint(int min, int max)
 {
@@ -213,8 +322,53 @@ void MainWindow::OnTextCyrillic()
 
 void MainWindow::OnTextLatin()
 {
+    HLOCAL buf = Edit_GetHandle(m_message);
+    wstring latin, temp;
+    LPWSTR text = (LPWSTR) LocalLock(buf);
+    
+    for (; *text; ++text) {
+        if (*(text + 1) == 0x0419 || *(text + 1) == 0x0439) {
+            if (*text == 0x0418 || *text == 0x0438 ||
+                *text == 0x042b || *text == 0x042b) {
+                // -ij to -y
+                if (*text & 0x20)
+                    latin.push_back(L'Y');
+                else
+                    latin.push_back(L'Y');
+                ++text;
+                continue;
+            }
+        } else if (to_latin.count(*text))
+            latin += to_latin.at(*text);
+        else
+            latin.push_back(*text);
+    }
+    LocalUnlock(buf);
+    Edit_SetText(m_message, latin.c_str());
 }
 
 void MainWindow::OnTextGreek()
 {
+    HLOCAL buf = Edit_GetHandle(m_message);
+    wstring greek, temp;
+    LPWSTR text = (LPWSTR) LocalLock(buf);
+    
+    for (; *text; ++text) {
+        temp = wstring(text, 2);
+        if (latin_greek.count(temp)) {
+            greek.push_back(latin_greek.at(temp));
+            ++text;
+        } else if (temp.pop_back(), latin_greek.count(temp))
+            greek.push_back(latin_greek.at(temp));
+        else
+            greek.push_back(*text);
+        
+        if (greek.back() == 0x03c3 && (*(text+1) < 'A' || *(text+1) > 'Z') &&
+                (*(text+1) < 'a' || *(text+1) > 'z')) {
+            greek.pop_back();
+            greek.push_back(0x03c2);
+        }
+    }
+    LocalUnlock(buf);
+    Edit_SetText(m_message, greek.c_str());
 }
