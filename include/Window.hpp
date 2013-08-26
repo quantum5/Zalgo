@@ -32,8 +32,10 @@ inline void MakeRectBottomRight(RECT &rect, int x, int y, int cx, int cy)
 
 class Window {
 public:
-    HWND GetHWND() { return m_hwnd; }
+    HWND GetHWND() const { return m_hwnd; }
+    bool ShowWindow(int nCmdShow) { return ::ShowWindow(m_hwnd, nCmdShow) != 0; }
     static HINSTANCE GetInstance() { return (HINSTANCE) GetModuleHandle(NULL); }
+    operator HWND() const { return m_hwnd; }
 protected:
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     virtual void PaintContent(PAINTSTRUCT *pps) {}
@@ -52,9 +54,8 @@ private:
     void OnPaint();
     void OnPrintClient(HDC hdc);
 
-    static LRESULT CALLBACK
-            s_WndProc(HWND hwnd, UINT uMsg,
-                      WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK s_WndProc(HWND hwnd, UINT uMsg,
+                                      WPARAM wParam, LPARAM lParam);
 protected:
     HWND m_hwnd;
 };

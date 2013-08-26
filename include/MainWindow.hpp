@@ -27,10 +27,11 @@
 #define ZALGO_CYRILLIC      0xA555
 #define ZALGO_GREEK         0xA556
 #define ZALGO_XSAMPA        0xA557
+#define ZALGO_XSAMPA_TABLE  0xA558
 
 class MainWindow : public Window {
 public:
-    virtual LPCTSTR ClassName() { return TEXT("Zalgo_Main"); }
+    virtual LPCTSTR ClassName() { return L"Zalgo_Main"; }
     static MainWindow *Create(LPCTSTR szTitle);
 protected:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -55,11 +56,11 @@ protected:
     HWND m_messLevel, m_messUpDown;
     HWND m_mess, m_unmess, m_previewShow;
     HWND m_nfc, m_nfd;
-    HWND m_latin, m_cyrillic, m_greek, m_xsampa;
+    HWND m_latin, m_cyrillic, m_greek, m_xsampa, m_xsampa_table;
     MyDropTarget m_dropTarget;
-    PreviewWindow *m_preview;
+    PreviewWindow *m_preview, *m_data_display;
 private:
-    HFONT hFont, hFontMono;
+    HFONT hFont;
     HBRUSH hBrush;
     UDACCEL *udaSecondAccel;
 };
