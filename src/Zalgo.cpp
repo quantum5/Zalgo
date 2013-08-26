@@ -19,7 +19,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     MainWindow *win = MainWindow::Create(L"U̬̩͔̐̿ṅ̨̤̬̽i̛̘̳̹ͤ̍c̠̳̬͛o̘̳͗̿̈́d̗̅̓͗͠ḛ͍͛ ̬̠̹̉ͭ͛D̨̤̰̀̂ͦì̛͇͂a͍͇͛ͨͤc̡̟͖͗̔ͤͅr͔͇ͮ̓̍͢i̴͇͇̇͋̽t̛̟̟͋i̲̘̿̊c̺͎ͬ͗-̴̤́̔P̋̍҉͎̹ö̲̯͈̋͞l͎͂l̻̖ͩ̂͜u̵͔̳̇̋t̳̪͐̎e͈̓͢ḓ̗̭̓ ̹̫͛Ṭͫe̙̝̦̊̊̑͢x̶͉ͦ̚t̞̔̈́̀ ̡̪̪̙͒͗G̘̜̋e͍̯̻͋ͬͦn̹̩̫̑̈́ẽ͔̳r̠͙͒̀̅ͅa̭ͫ̓́t̘̺̋̏̚o̰̙̦ͪṛͦͣ́ͅ");
     if (win) {
-        ShowWindow(win->GetHWND(), nCmdShow);
+        win->ShowWindow(nCmdShow);
         MSG msg;
         while (GetMessage(&msg, NULL, 0, 0) > 0) {
             TranslateMessage(&msg);

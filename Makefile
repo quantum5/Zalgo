@@ -52,8 +52,8 @@ $(SRCDIR)\Window.cpp: $(INCDIR)\Window.hpp
 $(SRCDIR)\NLSWrap.cpp: $(INCDIR)\NLSWrap.hpp
 $(SRCDIR)\MainLogic.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\NLSWrap.hpp $(INCDIR)\ConversionData.inc
 
-$(OUTDIR)\Zalgo.res: Zalgo.rc
-	$(RC) $(RCFLAGS) /fo$@ $**
+$(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt
+	$(RC) $(RCFLAGS) /fo$@ Zalgo.rc
 
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj::
 	$(CXX) $(CXXFLAGS) /Fo$(OUTDIR)\ /Fd$(OUTDIR)\ $<

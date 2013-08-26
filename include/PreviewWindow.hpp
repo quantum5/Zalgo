@@ -12,9 +12,13 @@
 
 class PreviewWindow : public Window {
 public:
-    virtual LPCTSTR ClassName() { return TEXT("Zalgo_Preview"); }
+    virtual LPCTSTR ClassName() { return L"Zalgo_Preview"; }
     static PreviewWindow *Create(LPCTSTR szTitle);
     void Destroy() { DestroyWindow(m_hwnd); }
+
+    void ChangeText(LPWSTR text, bool padding = true);
+    void SetFont(HFONT hFont);
+    void SetFont(const LOGFONT &lf);
 protected:
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT OnCreate();
@@ -24,6 +28,7 @@ protected:
     virtual HICON GetIcon();
 private:
     HFONT hFont;
+    bool used_logfont;
     HBRUSH hBrush;
     int xChar, yChar, xUpper, xClient, yClient, xClientMax, xPos, yPos;
     LPTSTR *lpLines;

@@ -5,29 +5,14 @@
 
 LRESULT PreviewWindow::OnCreate()
 {
-    NONCLIENTMETRICS ncmMetrics = { sizeof(NONCLIENTMETRICS) };
+    LOGFONT lf;
     RECT client;
-
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncmMetrics, 0);
     GetClientRect(m_hwnd, &client);
-    
-    hFont = CreateFontIndirect(&ncmMetrics.lfMessageFont);
 
-    // Get the handle to the client area's device context.
-    HDC hdc = GetDC(m_hwnd);
-    TEXTMETRIC tm;
-    // Extract font dimensions from the text metrics.
-    GetTextMetrics(hdc, &tm);
-    xChar = tm.tmAveCharWidth;
-    xUpper =(tm.tmPitchAndFamily & 1 ? 3 : 2) * xChar/2;
-    yChar = tm.tmHeight + tm.tmExternalLeading;
-    // Free the device context.
-    ReleaseDC(m_hwnd, hdc);
-    // Set an arbitrary maximum width for client area.
-    //(xClientMax is the sum of the widths of 48 average
-    // lowercase letters and 12 uppercase letters.)
-    xClientMax = 48 * xChar + 12 * xUpper;
-    
+    GetMessageFont(lf);
+    hFont = CreateFontIndirect(&lf);
+    SendMessage(m_hwnd, WM_SETFONT, (WPARAM) hFont, FALSE);
+
     lpLines = NULL;
     return 0;
 }
@@ -60,7 +45,7 @@ void PreviewWindow::OnPaint()
     yPos = si.nPos;
     
     SelectObject(ps.hdc, hFont);
-    SetBkColor(ps.hdc, RGB(0xF0, 0xF0, 0xF0));
+    SetBkMode(ps.hdc, TRANSPARENT);
     // Find painting limits.
     int FirstLine = max(0, yPos + ps.rcPaint.top / yChar);
     int LastLine = min(lines - 1, yPos + ps.rcPaint.bottom / yChar);
@@ -69,14 +54,99 @@ void PreviewWindow::OnPaint()
     GetScrollInfo(m_hwnd, SB_HORZ, &si);
     xPos = si.nPos;
     for (int i = FirstLine; i <= LastLine; i++) {
-        int x = xChar *(1 - xPos);
-        int y = yChar *(i - yPos);
+        int x = xChar * (1 - xPos);
+        int y = yChar * (i - yPos);
         rect.top = y;
         rect.left = x;
-        DrawText(ps.hdc, lpLines[i], -1, &rect, DT_NOCLIP);
+        DrawText(ps.hdc, lpLines[i], -1, &rect, DT_EXPANDTABS | DT_NOCLIP | DT_NOPREFIX);
     }
     done:
     EndPaint(m_hwnd, &ps);
+}
+
+void PreviewWindow::ChangeText(LPWSTR text, bool padding)
+{
+    if (lpLines) {
+        for (int i = 0; i < lines; ++i)
+            delete [] lpLines[i];
+        delete [] lpLines;
+    }
+    
+    int l = 0, longest = 0, maxlen = 0;
+    LPWSTR str = text;
+    
+    if (*str == L'\0') {
+        empty = true;
+        lpLines = NULL;
+    } else empty = false;
+    
+    while (*str++)
+        if (*str == L'\n')
+            ++l;
+    
+    if (*(str-1) != L'\n')
+        ++l;
+    
+    lines = l;
+    if (padding)
+        lines += 8;
+    lpLines = new LPTSTR[lines];
+    if (padding) {
+        for (int i = 0; i < 4; ++i) {
+            lpLines[i] = new TCHAR[1];
+            lpLines[i][0] = L'\0';
+        }
+    }
+
+    for (int i = 0; i < l; ++i) {
+        LPTSTR start = text, end, buf;
+        int len;
+        while (*text++ != L'\n' && *(text-1) != L'\0');
+        end = text - 1;
+        len = end - start;
+        if (len > maxlen) {
+            longest = i + (padding ? 4 : 0);
+            maxlen = len;
+        }
+        buf = new TCHAR[len + 1];
+        memcpy(buf, start, len*sizeof(TCHAR));
+        buf[len] = L'\0';
+        lpLines[i + (padding ? 4 : 0)] = buf;
+    }
+    if (padding) {
+        for (int i = l + 4; i < lines; ++i) {
+            lpLines[i] = new TCHAR[1];
+            lpLines[i][0] = L'\0';
+        }
+    }
+    
+    int upper = 0, lower = 0;
+    for (LPTSTR i = lpLines[longest]; *i; ++i) {
+        if (isupper(*i))
+            ++upper;
+        else if (!(*i >= 0x0300 && *i < 0x0370 || *i == 0x489))
+            ++lower;
+    }
+    xClientMax = lower * xChar + upper * xUpper;
+    
+    PostMessage(m_hwnd, WM_SIZE, 0, 0);
+}
+
+void PreviewWindow::SetFont(HFONT hFont)
+{
+    if (used_logfont)
+        DeleteFont(this->hFont);
+    used_logfont = false;
+    SendMessage(m_hwnd, WM_SETFONT, (WPARAM) hFont, TRUE);
+}
+
+void PreviewWindow::SetFont(const LOGFONT &lf)
+{
+    if (used_logfont)
+        DeleteFont(this->hFont);
+    used_logfont = true;
+    hFont = CreateFontIndirect(&lf);
+    SendMessage(m_hwnd, WM_SETFONT, (WPARAM) hFont, TRUE);
 }
 
 LRESULT PreviewWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -230,69 +300,31 @@ LRESULT PreviewWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     }
-    case WM_CHANGETEXT: {
-        if (lpLines) {
-            for (int i = 0; i < lines; ++i)
-                delete [] lpLines[i];
-            delete [] lpLines;
-        }
-        
-        LPTSTR str = (LPTSTR) lParam;
-        int l = 0, longest = 0, maxlen = 0;
-        
-        if (*str == L'\0') {
-            empty = true;
-            lpLines = NULL;
-        } else empty = false;
-        
-        while (*str++)
-            if (*str == L'\n')
-                ++l;
-        
-        if (*(str-1) != L'\n')
-            ++l;
-        
-        lines = l + 8;
-        lpLines = new LPTSTR[lines];
-        for (int i = 0; i < 4; ++i) {
-            lpLines[i] = new TCHAR[1];
-            lpLines[i][0] = L'\0';
-        }
-        str = (LPTSTR) lParam;
-        for (int i = 0; i < l; ++i) {
-            LPTSTR start = str, end, buf;
-            int len;
-            while (*str++ != L'\n' && *(str-1) != L'\0');
-            end = str - 1;
-            len = end - start;
-            if (len > maxlen) {
-                longest = i+4;
-                maxlen = len;
-            }
-            buf = new TCHAR[len + 1];
-            memcpy(buf, start, len*sizeof(TCHAR));
-            buf[len] = L'\0';
-            lpLines[i+4] = buf;
-        }
-        for (int i = l + 4; i < lines; ++i) {
-            lpLines[i] = new TCHAR[1];
-            lpLines[i][0] = L'\0';
-        }
-        
-        int upper = 0, lower = 0;
-        for (LPTSTR i = lpLines[longest]; *i; ++i) {
-            if (isupper(*i))
-                ++upper;
-            else if (!(*i >= 0x0300 && *i < 0x0370 || *i == 0x489))
-                ++lower;
-        }
-        xClientMax = lower * xChar + upper * xUpper;
-        
-        PostMessage(m_hwnd, WM_SIZE, 0, 0);
+    case WM_CHANGETEXT:
+        ChangeText((LPTSTR) lParam, (wParam & 1) == 0);
         return 0;
+    case WM_SETFONT: {
+        HDC hdc = GetDC(m_hwnd);
+        hFont = (HFONT) wParam;
+        HFONT hOldFont = SelectFont(hdc, hFont);
+        
+        TEXTMETRIC tm;
+        // Extract font dimensions from the text metrics.
+        GetTextMetrics(hdc, &tm);
+        xChar = tm.tmAveCharWidth;
+        xUpper =(tm.tmPitchAndFamily & 1 ? 3 : 2) * xChar/2;
+        yChar = tm.tmHeight + tm.tmExternalLeading;
+        // Set an arbitrary maximum width for client area.
+        //(xClientMax is the sum of the widths of 48 average
+        // lowercase letters and 12 uppercase letters.)
+        xClientMax = 48 * xChar + 12 * xUpper;
+        
+        SelectFont(hdc, hOldFont);
+        ReleaseDC(m_hwnd, hdc);
+        break;
     }
     case WM_CLOSE:
-        ShowWindow(m_hwnd, SW_HIDE);
+        ShowWindow(SW_HIDE);
         return 0;
     }
 

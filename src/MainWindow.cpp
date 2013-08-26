@@ -14,24 +14,6 @@
 #define BOTTOM(x, y, cx, cy) x, (y - cy), cx, cy
 #define BOTTOMRIGHT(x, y, cx, cy) (x - cx), (y - cy), cx, cy
 
-#define ZALGO_INITIAL  (L"To invoke the hive-mind representing chaos.\r\n"\
-                        L"Invoking the feeling of chaos.\r\n"\
-                        L"With out order.\r\n"\
-                        L"The Nezperdian hive-mind of chaos. Zalgo.\r\n"\
-                        L"He who Waits Behind The Wall.\r\n"\
-                        L"ZALGO!\r\n\r\n"\
-                        L"WARNING: Resulting text size is roughly original "\
-                        L"* (1 + fuck up level). Thou hast been warned.\r\n"\
-                        L"\r\n"\
-                        L"NOTE: If this program crashes on thee, blame "\
-                        L"thyself for fucking up a piece of text that is too "\
-                        L"big with a very high fuck up level.\r\n\r\n"\
-                        L"Do blame Windows for not able to show proper text "\
-                        L"in the edit control, for now, use the preview "\
-                        L"button.\r\n\r\n"\
-                        L"Bonus Geek Info: NFD text will lose all "\
-                        L"diacritics. Thou hast been warned.\r\n")
-
 UINT ZALGO_MESS_LEVEL_[3] = {6, 10, 14};
 #define ZALGO_MESS_LEVEL_OF(type) (ZALGO_MESS_LEVEL_[type-0xDEAD])
 
@@ -46,6 +28,23 @@ UINT ZALGO_MESS_LEVEL_[3] = {6, 10, 14};
 
 WNDPROC wpOrigEditProc;
 DWORD rgbWindowBackground;
+
+wchar_t *GetResourceString(int id, HMODULE module = NULL) {
+    HRSRC hRC;
+    DWORD size;
+    HGLOBAL hRes;
+    wchar_t *data;
+
+    hRC = FindResource(module, MAKEINTRESOURCE(id), L"ZALGO_TEXT");
+    if (!hRC)
+        return NULL;
+    size = SizeofResource(module, hRC);
+    hRes = LoadResource(module, hRC);
+    data = new wchar_t[size / sizeof(wchar_t) + 1];
+    memcpy(data, LockResource(hRes), size);
+    data[size / sizeof(wchar_t)] = 0;
+    return data;
+}
 
 LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -67,24 +66,26 @@ BOOL MainWindow::WinRegisterClass(WNDCLASS *pwc)
 
 LRESULT MainWindow::OnCreate()
 {
-    NONCLIENTMETRICS ncmMetrics = { sizeof(NONCLIENTMETRICS) };
+    LOGFONT lf;
     RECT client;
+    LPWSTR initial = NULL;
 
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncmMetrics, 0);
     GetClientRect(m_hwnd, &client);
-
-    hFont = CreateFontIndirect(&ncmMetrics.lfMessageFont);
+    GetMessageFont(lf);
+    hFont = CreateFontIndirect(&lf);
     hBrush = GetSysColorBrush(COLOR_WINDOW);
     rgbWindowBackground = GetSysColor(COLOR_WINDOW);
-    hFontMono = CreateFont(0, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET,
-                           OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-                           CLEARTYPE_QUALITY, FF_MODERN, TEXT("Consolas"));
 
+    initial = GetResourceString(RID_INIT);
+    if (!initial)
+        MessageBox(m_hwnd, L"Zalgo initial not found", L"Zalgo Error", MB_ICONERROR);
     // Children
     m_message = CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT,
-            ZALGO_INITIAL, WS_CHILDWINDOW | WS_VISIBLE | ES_LEFT |
+            initial, WS_CHILDWINDOW | WS_VISIBLE | ES_LEFT |
                   ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
             0, 0, 0, 0, m_hwnd, (HMENU) ZALGO_MESSAGE, GetInstance(), NULL);
+    if (initial)
+        delete [] initial;
 
     m_goUp = CreateWindow(WC_BUTTON, L"fuck up going &up",
             WS_CHILDWINDOW | WS_VISIBLE | BS_CHECKBOX, 0, 0, 0, 0,
@@ -146,6 +147,9 @@ LRESULT MainWindow::OnCreate()
     m_xsampa = CreateWindow(WC_BUTTON, L"&X-SAMPA to IPA",
             WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
             m_hwnd, (HMENU) ZALGO_XSAMPA, GetInstance(), NULL);
+    m_xsampa_table = CreateWindow(WC_BUTTON, L"X-&SAMPA Table",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) ZALGO_XSAMPA_TABLE, GetInstance(), NULL);
 
     PostMessage(m_messUpDown, UDM_SETRANGE32, 1, ZALGO_MESS_LEVEL_OF(ZALGO_MAX_MESS));
     PostMessage(m_messUpDown, UDM_SETPOS32, 0, ZALGO_MESS_LEVEL_OF(ZALGO_NORMAL_MESS));
@@ -168,6 +172,7 @@ LRESULT MainWindow::OnCreate()
     SETFONT(m_cyrillic);
     SETFONT(m_greek);
     SETFONT(m_xsampa);
+    SETFONT(m_xsampa_table);
 #undef SETFONT
 
     Button_SetCheck(m_goUp, 1);
@@ -177,10 +182,14 @@ LRESULT MainWindow::OnCreate()
     Edit_Enable(m_messLevel, 0);
 
     if (!m_dropTarget.DragDropRegister(m_hwnd))
-        MessageBox(m_hwnd, TEXT("Failed to register Drag and Drop handler"),
-                   TEXT("Zalgo has COME!!!"), MB_ICONERROR);
+        MessageBox(m_hwnd, L"Failed to register Drag and Drop handler",
+                   L"Zalgo has COME!!!", MB_ICONERROR);
 
     m_preview = PreviewWindow::Create(L"Text Preview");
+    m_data_display = PreviewWindow::Create(L"X-SAMPA Table");
+    lf.lfHeight = (LONG) (lf.lfHeight * 1.3);
+    lf.lfWidth  = (LONG) (lf.lfWidth * 1.3);
+    m_data_display->SetFont(lf);
 
     // Subclassing
     wpOrigEditProc = (WNDPROC) SetWindowLongPtr(m_message,
@@ -212,7 +221,9 @@ LRESULT MainWindow::OnDestroy()
     DestroyWindow(m_cyrillic);
     DestroyWindow(m_greek);
     DestroyWindow(m_xsampa);
+    DestroyWindow(m_xsampa_table);
     delete m_preview;
+    delete m_data_display;
     return 0;
 }
 
@@ -248,25 +259,26 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         GetClientRect(m_hwnd, &client);
 #define REPOS(hwnd, k) hdwp = DeferWindowPos(hdwp, hwnd, 0, k, SWP_NOACTIVATE|SWP_NOZORDER)
         hdwp = BeginDeferWindowPos(14);
-        REPOS(m_message,    LEFT(12, 12, client.right - 24, client.bottom - 124));
-        REPOS(m_goUp,       BOTTOM(12, client.bottom - 59, 140, 20));
-        REPOS(m_goMiddle,   BOTTOM(12, client.bottom - 34, 140, 20));
-        REPOS(m_goDown,     BOTTOM(12, client.bottom - 9,  140, 20));
-        REPOS(m_messMini,   BOTTOM(160, client.bottom - 59, 120, 20));
-        REPOS(m_messNormal, BOTTOM(160, client.bottom - 34, 120, 20));
-        REPOS(m_messMax,    BOTTOM(160, client.bottom - 9,  120, 20));
-        REPOS(m_messCustom, BOTTOM(280, client.bottom - 59, 120, 20));
-        REPOS(m_messLevel,  BOTTOM(280, client.bottom - 38, 84, 20));
-        REPOS(m_messUpDown, BOTTOM(362, client.bottom - 38, 18, 20));
-        REPOS(m_mess,       BOTTOMRIGHT(client.right - 12, client.bottom - 41, 100, 25));
-        REPOS(m_unmess,     BOTTOMRIGHT(client.right - 12, client.bottom - 12, 100, 25));
-        REPOS(m_nfc,        BOTTOMRIGHT(client.right - 117, client.bottom - 41, 50, 25));
-        REPOS(m_nfd,        BOTTOMRIGHT(client.right - 117, client.bottom - 12, 50, 25));
-        REPOS(m_previewShow,BOTTOMRIGHT(client.right - 172, client.bottom - 12, 100, 25));
-        REPOS(m_latin,      BOTTOM(12, client.bottom - 84, 100, 25));
-        REPOS(m_cyrillic,   BOTTOM(117, client.bottom - 84, 100, 25));
-        REPOS(m_greek,      BOTTOM(222, client.bottom - 84, 100, 25));
-        REPOS(m_xsampa,     BOTTOM(327, client.bottom - 84, 100, 25));
+        REPOS(m_message,      LEFT(12, 12, client.right - 24, client.bottom - 124));
+        REPOS(m_goUp,         BOTTOM(12, client.bottom - 59, 140, 20));
+        REPOS(m_goMiddle,     BOTTOM(12, client.bottom - 34, 140, 20));
+        REPOS(m_goDown,       BOTTOM(12, client.bottom - 9,  140, 20));
+        REPOS(m_messMini,     BOTTOM(160, client.bottom - 59, 120, 20));
+        REPOS(m_messNormal,   BOTTOM(160, client.bottom - 34, 120, 20));
+        REPOS(m_messMax,      BOTTOM(160, client.bottom - 9,  120, 20));
+        REPOS(m_messCustom,   BOTTOM(280, client.bottom - 59, 120, 20));
+        REPOS(m_messLevel,    BOTTOM(280, client.bottom - 38, 84, 20));
+        REPOS(m_messUpDown,   BOTTOM(362, client.bottom - 38, 18, 20));
+        REPOS(m_mess,         BOTTOMRIGHT(client.right - 12, client.bottom - 41, 100, 25));
+        REPOS(m_unmess,       BOTTOMRIGHT(client.right - 12, client.bottom - 12, 100, 25));
+        REPOS(m_nfc,          BOTTOMRIGHT(client.right - 117, client.bottom - 41, 50, 25));
+        REPOS(m_nfd,          BOTTOMRIGHT(client.right - 117, client.bottom - 12, 50, 25));
+        REPOS(m_previewShow,  BOTTOMRIGHT(client.right - 172, client.bottom - 12, 100, 25));
+        REPOS(m_latin,        BOTTOM(12, client.bottom - 84, 100, 25));
+        REPOS(m_cyrillic,     BOTTOM(117, client.bottom - 84, 100, 25));
+        REPOS(m_greek,        BOTTOM(222, client.bottom - 84, 100, 25));
+        REPOS(m_xsampa,       BOTTOM(327, client.bottom - 84, 100, 25));
+        REPOS(m_xsampa_table, BOTTOM(432, client.bottom - 84, 100, 25));
         EndDeferWindowPos(hdwp);
 #undef REPOS
         return 0;
@@ -288,8 +300,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 text = new wchar_t[textlen];
                 Edit_GetText(m_message, text, textlen);
 
-                SendMessage(m_preview->GetHWND(), WM_CHANGETEXT, 0, (LPARAM) text);
-                ShowWindow(m_preview->GetHWND(), SW_SHOW);
+                m_preview->ChangeText(text);
+                m_preview->ShowWindow(SW_SHOW);
+                break;
             }
             case TEXT_TO_NFC:
                 OnTextNFC();
@@ -314,6 +327,21 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ZALGO_GO_DOWN:
                 Button_SetCheck((HWND) lParam, !IsDlgButtonChecked(m_hwnd, LOWORD(wParam)));
                 break;
+            case ZALGO_XSAMPA_TABLE: {
+                wchar_t *text;
+
+                SetWindowText(m_data_display->GetHWND(), L"X-SAMPA Table");
+                text = GetResourceString(RID_XSAMPA);
+                if (!text) {
+                    MessageBox(m_hwnd, L"X-SAMPA table not found", L"X-SAMPA Error", MB_ICONERROR);
+                    break;
+                }
+                m_data_display->ChangeText(text, false);
+                m_data_display->ShowWindow(SW_SHOW);
+                SetForegroundWindow(*m_data_display);
+                delete [] text;
+                break;
+            }
             default:
                 Button_SetCheck(GetDlgItem(m_hwnd, ZALGO_MINI_MESS),   0);
                 Button_SetCheck(GetDlgItem(m_hwnd, ZALGO_NORMAL_MESS), 0);
@@ -348,19 +376,16 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == 'K' && GetKeyState(VK_CONTROL) < 0 &&
                 GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_MENU) < 0) {
             static bool unlocked = false;
-            // A user has tried to go beyond max, let is work
-            if (!unlocked && MessageBox(m_hwnd, L"\
-Thou hast tried to loosen my limits, dost thou promise that:\r\n\
-  1. thou will be responsible to use the string generated\r\n\
-  2. thou will be careful to not enter a number too large that will crash me\r\n\
-  3. if thou dost crash me, blame thyself for entering a number too large\r\n\
-\r\n\
-Dost thou agree?", L"About to Unlock Secret", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+            LPWSTR text = GetResourceString(RID_LOOSE);
+            // A user has tried to go beyond max, let it work
+            if (!unlocked && MessageBox(m_hwnd, text,L"About to Unlock Secret",
+                    MB_YESNO | MB_ICONQUESTION) == IDYES) {
                 PostMessage(m_messUpDown, UDM_SETRANGE32, 1, LONG_MAX);
                 PostMessage(m_messLevel, EM_SETREADONLY, 0, 0);
 
                 unlocked = true;
             }
+            delete [] text;
             return 0;
         }
         break;
