@@ -26,6 +26,7 @@
 #define ZALGO_LATIN         0xA554
 #define ZALGO_CYRILLIC      0xA555
 #define ZALGO_GREEK         0xA556
+#define ZALGO_XSAMPA        0xA557
 
 class MainWindow : public Window {
 public:
@@ -46,6 +47,7 @@ protected:
     void OnTextCyrillic();
     void OnTextLatin();
     void OnTextGreek();
+    void OnTextXSAMPA();
 
     HWND m_message;
     HWND m_goUp, m_goMiddle, m_goDown;
@@ -53,7 +55,7 @@ protected:
     HWND m_messLevel, m_messUpDown;
     HWND m_mess, m_unmess, m_previewShow;
     HWND m_nfc, m_nfd;
-    HWND m_latin, m_cyrillic, m_greek;
+    HWND m_latin, m_cyrillic, m_greek, m_xsampa;
     MyDropTarget m_dropTarget;
     PreviewWindow *m_preview;
 private:

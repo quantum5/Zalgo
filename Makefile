@@ -50,7 +50,7 @@ $(SRCDIR)\Zalgo.cpp: $(INCDIR)\MainWindow.hpp
 $(SRCDIR)\PreviewWindow.cpp: $(INCDIR)\PreviewWindow.hpp
 $(SRCDIR)\Window.cpp: $(INCDIR)\Window.hpp
 $(SRCDIR)\NLSWrap.cpp: $(INCDIR)\NLSWrap.hpp
-$(SRCDIR)\MainLogic.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\NLSWrap.hpp
+$(SRCDIR)\MainLogic.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\NLSWrap.hpp $(INCDIR)\ConversionData.inc
 
 $(OUTDIR)\Zalgo.res: Zalgo.rc
 	$(RC) $(RCFLAGS) /fo$@ $**
