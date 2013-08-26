@@ -143,6 +143,9 @@ LRESULT MainWindow::OnCreate()
     m_greek = CreateWindow(WC_BUTTON, L"Use G&reek",
             WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
             m_hwnd, (HMENU) ZALGO_GREEK, GetInstance(), NULL);
+    m_xsampa = CreateWindow(WC_BUTTON, L"&X-SAMPA to IPA",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) ZALGO_XSAMPA, GetInstance(), NULL);
 
     PostMessage(m_messUpDown, UDM_SETRANGE32, 1, ZALGO_MESS_LEVEL_OF(ZALGO_MAX_MESS));
     PostMessage(m_messUpDown, UDM_SETPOS32, 0, ZALGO_MESS_LEVEL_OF(ZALGO_NORMAL_MESS));
@@ -164,6 +167,7 @@ LRESULT MainWindow::OnCreate()
     SETFONT(m_latin);
     SETFONT(m_cyrillic);
     SETFONT(m_greek);
+    SETFONT(m_xsampa);
 #undef SETFONT
 
     Button_SetCheck(m_goUp, 1);
@@ -207,6 +211,7 @@ LRESULT MainWindow::OnDestroy()
     DestroyWindow(m_latin);
     DestroyWindow(m_cyrillic);
     DestroyWindow(m_greek);
+    DestroyWindow(m_xsampa);
     delete m_preview;
     return 0;
 }
@@ -251,7 +256,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         REPOS(m_messNormal, BOTTOM(160, client.bottom - 34, 120, 20));
         REPOS(m_messMax,    BOTTOM(160, client.bottom - 9,  120, 20));
         REPOS(m_messCustom, BOTTOM(280, client.bottom - 59, 120, 20));
-        REPOS(m_messLevel,  BOTTOM(280, client.bottom - 38, 100, 20));
+        REPOS(m_messLevel,  BOTTOM(280, client.bottom - 38, 84, 20));
+        REPOS(m_messUpDown, BOTTOM(362, client.bottom - 38, 18, 20));
         REPOS(m_mess,       BOTTOMRIGHT(client.right - 12, client.bottom - 41, 100, 25));
         REPOS(m_unmess,     BOTTOMRIGHT(client.right - 12, client.bottom - 12, 100, 25));
         REPOS(m_nfc,        BOTTOMRIGHT(client.right - 117, client.bottom - 41, 50, 25));
@@ -260,9 +266,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         REPOS(m_latin,      BOTTOM(12, client.bottom - 84, 100, 25));
         REPOS(m_cyrillic,   BOTTOM(117, client.bottom - 84, 100, 25));
         REPOS(m_greek,      BOTTOM(222, client.bottom - 84, 100, 25));
+        REPOS(m_xsampa,     BOTTOM(327, client.bottom - 84, 100, 25));
         EndDeferWindowPos(hdwp);
 #undef REPOS
-        PostMessage(m_messUpDown, UDM_SETBUDDY, (WPARAM) m_messLevel, 0);
         return 0;
     }
     case WM_COMMAND:
@@ -299,6 +305,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             case ZALGO_GREEK:
                 OnTextGreek();
+                break;
+            case ZALGO_XSAMPA:
+                OnTextXSAMPA();
                 break;
             case ZALGO_GO_UP:
             case ZALGO_GO_CENTER:
