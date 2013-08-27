@@ -28,6 +28,9 @@
 #define ZALGO_GREEK         0xA556
 #define ZALGO_XSAMPA        0xA557
 #define ZALGO_XSAMPA_TABLE  0xA558
+#define ZALGO_LOAD          0xA559
+#define ZALGO_SAVE          0xA55A
+#define ZALGO_USE_UTF8      0xA55B
 
 class MainWindow : public Window {
 public:
@@ -49,13 +52,17 @@ protected:
     void OnTextLatin();
     void OnTextGreek();
     void OnTextXSAMPA();
+    
+    void OnLoadFile();
+    void OnSaveFile();
 
-    HWND m_message;
+    HWND m_message, m_settings;
     HWND m_goUp, m_goMiddle, m_goDown;
     HWND m_messMini, m_messNormal, m_messMax, m_messCustom;
     HWND m_messLevel, m_messUpDown;
     HWND m_mess, m_unmess, m_previewShow;
     HWND m_nfc, m_nfd;
+    HWND m_load, m_save, m_use_utf8;
     HWND m_latin, m_cyrillic, m_greek, m_xsampa, m_xsampa_table;
     MyDropTarget m_dropTarget;
     PreviewWindow *m_preview, *m_data_display;
