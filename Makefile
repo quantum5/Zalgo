@@ -26,6 +26,7 @@ FILES=$(OUTDIR)\Zalgo.obj \
       $(OUTDIR)\Window.obj \
       $(OUTDIR)\DropTarget.obj \
       $(OUTDIR)\MainLogic.obj \
+      $(OUTDIR)\MainLoadSave.obj \
       $(OUTDIR)\PreviewWindow.obj \
       $(OUTDIR)\NLSWrap.obj \
       $(OUTDIR)\MyDropTarget.obj \
@@ -39,11 +40,12 @@ initdir:
 	if not exist build md dist
 	if not exist $(DISTDIR) md $(DISTDIR)
 
-$(INCDIR)\MainWindow.hpp: $(INCDIR)\Window.hpp $(INCDIR)\MyDropTarget.hpp
+$(INCDIR)\MainWindow.hpp: $(INCDIR)\Window.hpp $(INCDIR)\MyDropTarget.hpp $(INCDIR)\PreviewWindow.hpp
 $(INCDIR)\PreviewWindow.hpp: $(INCDIR)\Window.hpp
 $(INCDIR)\MyDropTarget.hpp: $(INCDIR)\DropTarget.hpp
 
 $(SRCDIR)\MainWindow.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\PreviewWindow.hpp
+$(SRCDIR)\MainLoadSave.cpp: $(INCDIR)\MainWindow.hpp
 $(SRCDIR)\DropTarget.cpp: $(INCDIR)\DropTarget.hpp
 $(SRCDIR)\MyDropTarget.cpp: $(INCDIR)\MyDropTarget.hpp
 $(SRCDIR)\Zalgo.cpp: $(INCDIR)\MainWindow.hpp

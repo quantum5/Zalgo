@@ -87,6 +87,10 @@ LRESULT MainWindow::OnCreate()
     if (initial)
         delete [] initial;
 
+    m_settings = CreateWindow(WC_STATIC, L"Options:",
+            WS_CHILDWINDOW | WS_VISIBLE, 0, 0, 0, 0,
+            m_hwnd, NULL, GetInstance(), NULL);
+
     m_goUp = CreateWindow(WC_BUTTON, L"fuck up going &up",
             WS_CHILDWINDOW | WS_VISIBLE | BS_CHECKBOX, 0, 0, 0, 0,
             m_hwnd, (HMENU) ZALGO_GO_UP, GetInstance(), NULL);
@@ -128,6 +132,16 @@ LRESULT MainWindow::OnCreate()
             WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
             m_hwnd, (HMENU) ZALGO_PREVIEW, GetInstance(), NULL);
 
+    m_use_utf8 = CreateWindow(WC_BUTTON, L"Use U&TF-8 in Load/Save",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_CHECKBOX, 0, 0, 0, 0,
+            m_hwnd, (HMENU) ZALGO_USE_UTF8, GetInstance(), NULL);
+    m_load = CreateWindow(WC_BUTTON, L"L&oad",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) ZALGO_LOAD, GetInstance(), NULL);
+    m_save = CreateWindow(WC_BUTTON, L"S&ave",
+            WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+            m_hwnd, (HMENU) ZALGO_SAVE, GetInstance(), NULL);
+
     m_nfc = CreateWindow(WC_BUTTON, L"N&FC",
             WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
             m_hwnd, (HMENU) TEXT_TO_NFC, GetInstance(), NULL);
@@ -155,6 +169,7 @@ LRESULT MainWindow::OnCreate()
     PostMessage(m_messUpDown, UDM_SETPOS32, 0, ZALGO_MESS_LEVEL_OF(ZALGO_NORMAL_MESS));
 #define SETFONT(hwnd) PostMessage(hwnd, WM_SETFONT, (WPARAM) hFont, (LPARAM) FALSE)
     SETFONT(m_message);
+    SETFONT(m_settings);
     SETFONT(m_goUp);
     SETFONT(m_goMiddle);
     SETFONT(m_goDown);
@@ -166,6 +181,9 @@ LRESULT MainWindow::OnCreate()
     SETFONT(m_mess);
     SETFONT(m_unmess);
     SETFONT(m_previewShow);
+    SETFONT(m_use_utf8);
+    SETFONT(m_load);
+    SETFONT(m_save);
     SETFONT(m_nfc);
     SETFONT(m_nfd);
     SETFONT(m_latin);
@@ -179,6 +197,7 @@ LRESULT MainWindow::OnCreate()
     Button_SetCheck(m_goMiddle, 1);
     Button_SetCheck(m_goDown, 1);
     Button_SetCheck(m_messNormal, 1);
+    Button_SetCheck(m_use_utf8, 1);
     Edit_Enable(m_messLevel, 0);
 
     if (!m_dropTarget.DragDropRegister(m_hwnd))
@@ -203,6 +222,7 @@ LRESULT MainWindow::OnDestroy()
     SetWindowLongPtr(m_message, GWL_WNDPROC, (LONG_PTR) wpOrigEditProc);
 
     DestroyWindow(m_message);
+    DestroyWindow(m_settings);
     DestroyWindow(m_goUp);
     DestroyWindow(m_goMiddle);
     DestroyWindow(m_goDown);
@@ -215,6 +235,9 @@ LRESULT MainWindow::OnDestroy()
     DestroyWindow(m_mess);
     DestroyWindow(m_unmess);
     DestroyWindow(m_previewShow);
+    DestroyWindow(m_use_utf8);
+    DestroyWindow(m_load);
+    DestroyWindow(m_save);
     DestroyWindow(m_nfc);
     DestroyWindow(m_nfd);
     DestroyWindow(m_latin);
@@ -259,7 +282,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         GetClientRect(m_hwnd, &client);
 #define REPOS(hwnd, k) hdwp = DeferWindowPos(hdwp, hwnd, 0, k, SWP_NOACTIVATE|SWP_NOZORDER)
         hdwp = BeginDeferWindowPos(14);
-        REPOS(m_message,      LEFT(12, 12, client.right - 24, client.bottom - 124));
+        REPOS(m_message,      LEFT(12, 12, client.right - 24, client.bottom - 149));
+        REPOS(m_settings,     BOTTOM(12, client.bottom - 84, 140, 20));
         REPOS(m_goUp,         BOTTOM(12, client.bottom - 59, 140, 20));
         REPOS(m_goMiddle,     BOTTOM(12, client.bottom - 34, 140, 20));
         REPOS(m_goDown,       BOTTOM(12, client.bottom - 9,  140, 20));
@@ -273,12 +297,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         REPOS(m_unmess,       BOTTOMRIGHT(client.right - 12, client.bottom - 12, 100, 25));
         REPOS(m_nfc,          BOTTOMRIGHT(client.right - 117, client.bottom - 41, 50, 25));
         REPOS(m_nfd,          BOTTOMRIGHT(client.right - 117, client.bottom - 12, 50, 25));
-        REPOS(m_previewShow,  BOTTOMRIGHT(client.right - 172, client.bottom - 12, 100, 25));
-        REPOS(m_latin,        BOTTOM(12, client.bottom - 84, 100, 25));
-        REPOS(m_cyrillic,     BOTTOM(117, client.bottom - 84, 100, 25));
-        REPOS(m_greek,        BOTTOM(222, client.bottom - 84, 100, 25));
-        REPOS(m_xsampa,       BOTTOM(327, client.bottom - 84, 100, 25));
-        REPOS(m_xsampa_table, BOTTOM(432, client.bottom - 84, 100, 25));
+        REPOS(m_latin,        BOTTOM(12,  client.bottom - 109, 100, 25));
+        REPOS(m_cyrillic,     BOTTOM(117, client.bottom - 109, 100, 25));
+        REPOS(m_greek,        BOTTOM(222, client.bottom - 109, 100, 25));
+        REPOS(m_xsampa,       BOTTOM(327, client.bottom - 109, 100, 25));
+        REPOS(m_xsampa_table, BOTTOM(432, client.bottom - 109, 100, 25));
+        REPOS(m_use_utf8,     BOTTOMRIGHT(client.right - 332, client.bottom - 80, 160, 25));
+        REPOS(m_previewShow,  BOTTOMRIGHT(client.right - 222, client.bottom - 80, 100, 25));
+        REPOS(m_load,         BOTTOMRIGHT(client.right - 117, client.bottom - 80, 100, 25));
+        REPOS(m_save,         BOTTOMRIGHT(client.right -  12, client.bottom - 80, 100, 25));
         EndDeferWindowPos(hdwp);
 #undef REPOS
         return 0;
@@ -325,6 +352,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ZALGO_GO_UP:
             case ZALGO_GO_CENTER:
             case ZALGO_GO_DOWN:
+            case ZALGO_USE_UTF8:
                 Button_SetCheck((HWND) lParam, !IsDlgButtonChecked(m_hwnd, LOWORD(wParam)));
                 break;
             case ZALGO_XSAMPA_TABLE: {
@@ -342,6 +370,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 delete [] text;
                 break;
             }
+            case ZALGO_LOAD:
+                OnLoadFile();
+                break;
+            case ZALGO_SAVE:
+                OnSaveFile();
+                break;
             default:
                 Button_SetCheck(GetDlgItem(m_hwnd, ZALGO_MINI_MESS),   0);
                 Button_SetCheck(GetDlgItem(m_hwnd, ZALGO_NORMAL_MESS), 0);
@@ -369,6 +403,10 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         HBRUSH white = CreateSolidBrush(RGB(255, 255, 255));
         if ((HWND) lParam == m_messLevel && IsWindowEnabled(m_messLevel))
             return (LRESULT) white;
+        if ((HWND) lParam == m_settings) {
+            SetBkColor((HDC) wParam, GetSysColor(COLOR_3DFACE));
+            return (LRESULT) GetSysColorBrush(COLOR_3DFACE);
+        }
         SetBkColor((HDC) wParam, rgbWindowBackground);
         return (LRESULT) hBrush;
     }
@@ -378,7 +416,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             static bool unlocked = false;
             LPWSTR text = GetResourceString(RID_LOOSE);
             // A user has tried to go beyond max, let it work
-            if (!unlocked && MessageBox(m_hwnd, text,L"About to Unlock Secret",
+            if (!unlocked && MessageBox(m_hwnd, text, L"About to Unlock Secret",
                     MB_YESNO | MB_ICONQUESTION) == IDYES) {
                 PostMessage(m_messUpDown, UDM_SETRANGE32, 1, LONG_MAX);
                 PostMessage(m_messLevel, EM_SETREADONLY, 0, 0);
@@ -408,7 +446,7 @@ MainWindow *MainWindow::Create(LPCTSTR szTitle)
     if (self &&
         self->WinCreateWindow(0,
                 szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-                CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
+                CW_USEDEFAULT, CW_USEDEFAULT, 640, 500,
                 NULL, NULL)) {
         return self;
     }
