@@ -283,7 +283,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define REPOS(hwnd, k) hdwp = DeferWindowPos(hdwp, hwnd, 0, k, SWP_NOACTIVATE|SWP_NOZORDER)
         hdwp = BeginDeferWindowPos(14);
         REPOS(m_message,      LEFT(12, 12, client.right - 24, client.bottom - 149));
-        REPOS(m_settings,     BOTTOM(12, client.bottom - 84, 140, 20));
+        REPOS(m_settings,     BOTTOM(12, client.bottom - 84, 80, 20));
         REPOS(m_goUp,         BOTTOM(12, client.bottom - 59, 140, 20));
         REPOS(m_goMiddle,     BOTTOM(12, client.bottom - 34, 140, 20));
         REPOS(m_goDown,       BOTTOM(12, client.bottom - 9,  140, 20));
