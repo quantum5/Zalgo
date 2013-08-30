@@ -40,6 +40,9 @@ initdir:
 	if not exist build md dist
 	if not exist $(DISTDIR) md $(DISTDIR)
 
+compress: $(DISTDIR)\Zalgo.exe
+	upx --best $**
+
 $(INCDIR)\MainWindow.hpp: $(INCDIR)\Window.hpp $(INCDIR)\MyDropTarget.hpp $(INCDIR)\PreviewWindow.hpp
 $(INCDIR)\PreviewWindow.hpp: $(INCDIR)\Window.hpp
 $(INCDIR)\MyDropTarget.hpp: $(INCDIR)\DropTarget.hpp
