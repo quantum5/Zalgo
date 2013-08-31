@@ -3,7 +3,7 @@ INCDIR=include
 
 CXX=cl /nologo
 LD=link /nologo
-CXXFLAGS=/c /O1 /I$(INCDIR) /W4 /Zi /DWIN32_LEAN_AND_MEAN /DWINVER=0x0501 /D_WIN32_WINNT=0x0501 /wd4100 /DUNICODE /D_UNICODE
+CXXFLAGS=/c /O1 /I$(INCDIR) /W4 /Zi /DWIN32_LEAN_AND_MEAN /DWINVER=0x0501 /D_WIN32_WINNT=0x0501 /wd4100 /DUNICODE /D_UNICODE /EHsc
 LDFLAGS=/subsystem:windows /debug /manifest /incremental:no /opt:REF
 LDFLAGS=$(LDFLAGS) "/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
 RC=rc /nologo
@@ -31,16 +31,24 @@ FILES=$(OUTDIR)\Zalgo.obj \
       $(OUTDIR)\NLSWrap.obj \
       $(OUTDIR)\MyDropTarget.obj \
       $(OUTDIR)\Zalgo.res
+DISTS=$(DISTDIR)\Zalgo.exe \
+      $(DISTDIR)\hecomes.exe \
+      $(DISTDIR)\hegoes.exe
 
-all: initdir $(DISTDIR)\Zalgo.exe
+CMDFILE=$(OUTDIR)\ZalgoLib.obj \
+        $(OUTDIR)\OptionParser.obj
+
+all: initdir $(DISTS)
+hecomes: $(DISTDIR)\hecomes.exe
+hecomes: $(DISTDIR)\hegoes.exe
 
 initdir:
-	if not exist build md build
-	if not exist $(OUTDIR) md $(OUTDIR)
-	if not exist build md dist
-	if not exist $(DISTDIR) md $(DISTDIR)
+	@if not exist build md build
+	@if not exist $(OUTDIR) md $(OUTDIR)
+	@if not exist build md dist
+	@if not exist $(DISTDIR) md $(DISTDIR)
 
-compress: $(DISTDIR)\Zalgo.exe
+compress: $(DISTS)
 	upx --best $**
 
 $(INCDIR)\MainWindow.hpp: $(INCDIR)\Window.hpp $(INCDIR)\MyDropTarget.hpp $(INCDIR)\PreviewWindow.hpp
@@ -57,6 +65,11 @@ $(SRCDIR)\Window.cpp: $(INCDIR)\Window.hpp
 $(SRCDIR)\NLSWrap.cpp: $(INCDIR)\NLSWrap.hpp
 $(SRCDIR)\MainLogic.cpp: $(INCDIR)\MainWindow.hpp $(INCDIR)\NLSWrap.hpp $(INCDIR)\ConversionData.inc
 
+$(SRCDIR)\ZalgoLib.cpp: $(INCDIR)\ZalgoLib.h $(INCDIR)\ConversionData.inc
+$(SRCDIR)\OptionParser.cpp: $(INCDIR)\OptionParser.h
+$(SRCDIR)\hecomes.cpp: $(INCDIR)\OptionParser.h $(INCDIR)\ZalgoLib.h
+$(SRCDIR)\hegoes.cpp: $(INCDIR)\OptionParser.h $(INCDIR)\ZalgoLib.h
+
 $(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt
 	$(RC) $(RCFLAGS) /fo$@ Zalgo.rc
 
@@ -66,3 +79,9 @@ $(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt
 $(DISTDIR)\Zalgo.exe: $(FILES)
 	$(LD) /out:$@ $(LDFLAGS) $** $(LIBS)
 	mt.exe -nologo -manifest $@.manifest -outputresource:$@;1 && del $@.manifest || set ERRORLEVEL=0
+
+$(DISTDIR)\hecomes.exe: $(CMDFILE) $(OUTDIR)\hecomes.obj
+	$(LD) /out:$@ $**
+
+$(DISTDIR)\hegoes.exe: $(CMDFILE) $(OUTDIR)\hegoes.obj
+	$(LD) /out:$@ $**
