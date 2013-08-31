@@ -1,0 +1,62 @@
+SRCDIR=src
+INCDIR=include
+
+ifdef CROSS
+	KROSS=$(CROSS)-
+endif
+
+CXX=$(KROSS)g++ -std=c++11
+STRIP=$(KROSS)strip
+LD=$(CXX)
+CXXFLAGS=-c -O3 -I$(INCDIR) -Wall -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 -DUNICODE -D_UNICODE
+LDFLAGS=-static-libstdc++
+LIBS=
+
+ifdef DEBUG
+BUILD=Debug
+CXXFLAGS=$(CXXFLAGS) -DDEBUG
+LDFLAGS=$(LDFLAGS) -g
+else
+BUILD=Release
+endif
+
+OUTDIR=build/$(BUILD)
+DISTDIR=dist/$(BUILD)
+DISTS=$(DISTDIR)/hecomes \
+      $(DISTDIR)/hegoes
+
+FILES=$(OUTDIR)/ZalgoLib.o \
+      $(OUTDIR)/OptionParser.o
+
+all: initdir $(DISTS)
+hecomes: $(DISTDIR)/hecomes
+hecomes: $(DISTDIR)/hegoes
+
+.PHONY: clean
+
+clean:
+	rm $(OUTDIR)/*.o
+	rm $(DISTS)
+
+strip:
+	$(STRIP) $(DISTS)
+
+initdir:
+	-test -d build || mkdir build
+	-test -d $(OUTDIR) || mkdir $(OUTDIR)
+	-test -d build || mkdir dist
+	-test -d $(DISTDIR) || mkdir $(DISTDIR)
+
+$(SRCDIR)/ZalgoLib.cpp: $(INCDIR)/ZalgoLib.h $(INCDIR)/ConversionData.inc
+$(SRCDIR)/OptionParser.cpp: $(INCDIR)/OptionParser.h
+$(SRCDIR)/hecomes.cpp: $(INCDIR)/OptionParser.h $(INCDIR)/ZalgoLib.h
+$(SRCDIR)/hegoes.cpp: $(INCDIR)/OptionParser.h $(INCDIR)/ZalgoLib.h
+
+$(OUTDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(DISTDIR)/hecomes: $(FILES) $(OUTDIR)/hecomes.o
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(DISTDIR)/hegoes: $(FILES) $(OUTDIR)/hegoes.o
+	$(LD) $(LDFLAGS) -o $@ $^
