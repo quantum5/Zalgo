@@ -4,8 +4,7 @@ INCDIR=include
 CXX=cl /nologo
 LD=link /nologo
 CXXFLAGS=/c /O1 /I$(INCDIR) /W4 /Zi /DWIN32_LEAN_AND_MEAN /DWINVER=0x0501 /D_WIN32_WINNT=0x0501 /wd4100 /DUNICODE /D_UNICODE /EHsc
-LDFLAGS=/subsystem:windows /debug /manifest /incremental:no /opt:REF
-LDFLAGS=$(LDFLAGS) "/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
+LDFLAGS=/subsystem:windows /debug /incremental:no /opt:REF
 RC=rc /nologo
 RCFLAGS=/i$(INCDIR)
 LIBS=
@@ -78,7 +77,6 @@ $(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt
 
 $(DISTDIR)\Zalgo.exe: $(FILES)
 	$(LD) /out:$@ $(LDFLAGS) $** $(LIBS)
-	mt.exe -nologo -manifest $@.manifest -outputresource:$@;1 && del $@.manifest || set ERRORLEVEL=0
 
 $(DISTDIR)\hecomes.exe: $(CMDFILE) $(OUTDIR)\hecomes.obj
 	$(LD) /out:$@ $**
