@@ -1,5 +1,5 @@
 #include <MainWindow.hpp>
-#include <nlswrap.hpp>
+#include <NLSWrap.hpp>
 #include <windowsx.h>
 #include <commctrl.h>
 
