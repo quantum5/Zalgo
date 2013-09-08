@@ -61,7 +61,7 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 BOOL MainWindow::WinRegisterClass(WNDCLASS *pwc)
 {
     pwc->style = CS_HREDRAW | CS_VREDRAW;
-    return __super::WinRegisterClass(pwc);
+    return Window::WinRegisterClass(pwc);
 }
 
 LRESULT MainWindow::OnCreate()
@@ -437,7 +437,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, GetWindowLongPtr(m_hwnd, GWL_EXSTYLE) & ~WS_EX_COMPOSITED);
         return 0;
     }
-    return __super::HandleMessage(uMsg, wParam, lParam);
+    return Window::HandleMessage(uMsg, wParam, lParam);
 }
 
 MainWindow *MainWindow::Create(LPCTSTR szTitle)

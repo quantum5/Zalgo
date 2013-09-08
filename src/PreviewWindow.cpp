@@ -328,7 +328,7 @@ LRESULT PreviewWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    return __super::HandleMessage(uMsg, wParam, lParam);
+    return Window::HandleMessage(uMsg, wParam, lParam);
 }
 
 PreviewWindow *PreviewWindow::Create(LPCTSTR szTitle)
