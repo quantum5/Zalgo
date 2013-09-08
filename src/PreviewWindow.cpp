@@ -32,6 +32,7 @@ void PreviewWindow::OnPaint()
     PAINTSTRUCT ps;
     SCROLLINFO si;
     RECT rect;
+    int FirstLine, LastLine;
     
     BeginPaint(m_hwnd, &ps);
     GetClientRect(m_hwnd, &rect);
@@ -47,8 +48,8 @@ void PreviewWindow::OnPaint()
     SelectObject(ps.hdc, hFont);
     SetBkMode(ps.hdc, TRANSPARENT);
     // Find painting limits.
-    int FirstLine = max(0, yPos + ps.rcPaint.top / yChar);
-    int LastLine = min(lines - 1, yPos + ps.rcPaint.bottom / yChar);
+    FirstLine = max(0, yPos + ps.rcPaint.top / yChar);
+    LastLine = min(lines - 1, yPos + ps.rcPaint.bottom / yChar);
 
     // Get horizontal scroll bar position.
     GetScrollInfo(m_hwnd, SB_HORZ, &si);

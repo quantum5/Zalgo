@@ -11,6 +11,8 @@ void MainWindow::OnLoadFile()
     HANDLE file = INVALID_HANDLE_VALUE, mapping = 0;
     LPSTR data = NULL;
     LPWSTR storage = NULL;
+    int codepage = 0
+    DWORD size = 0, length = 0;
     
     ofn.hwndOwner = m_hwnd;
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
@@ -29,7 +31,7 @@ void MainWindow::OnLoadFile()
         return;
     }
     
-    DWORD length = GetFileSize(file, NULL);
+    length = GetFileSize(file, NULL);
     if (!length) {
         MessageBox(m_hwnd, L"You have to choose a file with contents!",
                    L"Zero size file", MB_ICONERROR);
@@ -47,8 +49,8 @@ void MainWindow::OnLoadFile()
         TellError(L"Failed to Load File into Memory", m_hwnd);
         goto cleanup;
     }
-    int codepage = IsDlgButtonChecked(m_hwnd, ZALGO_USE_UTF8) ? CP_UTF8 : CP_ACP;
-    DWORD size = MultiByteToWideChar(codepage, 0, data, -1, NULL, 0);
+    codepage = IsDlgButtonChecked(m_hwnd, ZALGO_USE_UTF8) ? CP_UTF8 : CP_ACP;
+    size = MultiByteToWideChar(codepage, 0, data, -1, NULL, 0);
     storage = (LPWSTR) HeapAlloc(GetProcessHeap(), 0, size * sizeof(WCHAR));
 
     if (!storage) {
@@ -85,6 +87,9 @@ void MainWindow::OnSaveFile()
     LPWSTR data = NULL;
     LPSTR storage = NULL;
     HANDLE file = INVALID_HANDLE_VALUE;
+    HLOCAL buf = NULL;
+    int codepage = 0;
+    DWORD length = 0, size = 0, written = 0;
 
     ofn.hwndOwner = m_hwnd;
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
@@ -97,11 +102,11 @@ void MainWindow::OnSaveFile()
     if (!GetSaveFileName(&ofn))
         return;
     
-    HLOCAL buf = Edit_GetHandle(m_message);
+    buf = Edit_GetHandle(m_message);
     data = (LPWSTR) LocalLock(buf);
     
-    int codepage = IsDlgButtonChecked(m_hwnd, ZALGO_USE_UTF8) ? CP_UTF8 : CP_ACP;
-    int size = WideCharToMultiByte(codepage, 0, data, -1, NULL, 0, NULL, NULL);
+    codepage = IsDlgButtonChecked(m_hwnd, ZALGO_USE_UTF8) ? CP_UTF8 : CP_ACP;
+    size = WideCharToMultiByte(codepage, 0, data, -1, NULL, 0, NULL, NULL);
     storage = (LPSTR) HeapAlloc(GetProcessHeap(), 0, size);
 
     if (!storage) {
@@ -122,8 +127,7 @@ void MainWindow::OnSaveFile()
         goto cleanup;
     }
     
-    DWORD length = lstrlenA(storage);
-    DWORD written;
+    length = lstrlenA(storage);
     if (!WriteFile(file, storage, length, &written, NULL))
         TellError(L"Failed to Write to Save File", m_hwnd);
     
