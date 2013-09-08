@@ -11,8 +11,8 @@ void MainWindow::OnLoadFile()
     HANDLE file = INVALID_HANDLE_VALUE, mapping = 0;
     LPSTR data = NULL;
     LPWSTR storage = NULL;
-    int codepage = 0
-    DWORD size = 0, length = 0;
+    int codepage;
+    DWORD size, length;
     
     ofn.hwndOwner = m_hwnd;
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
@@ -88,8 +88,8 @@ void MainWindow::OnSaveFile()
     LPSTR storage = NULL;
     HANDLE file = INVALID_HANDLE_VALUE;
     HLOCAL buf = NULL;
-    int codepage = 0;
-    DWORD length = 0, size = 0, written = 0;
+    int codepage;
+    DWORD length, size, written;
 
     ofn.hwndOwner = m_hwnd;
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
