@@ -13,7 +13,7 @@ public:
     HRESULT m_hr;
 };
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     COleInitialize oleInit;
     InitCommonControls();
 
