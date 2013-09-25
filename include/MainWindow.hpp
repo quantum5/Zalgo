@@ -68,7 +68,6 @@ protected:
     PreviewWindow *m_preview, *m_data_display;
 private:
     HFONT hFont;
-    HBRUSH hBrush;
     UDACCEL *udaSecondAccel;
 };
 

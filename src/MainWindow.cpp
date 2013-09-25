@@ -27,7 +27,6 @@ UINT ZALGO_MESS_LEVEL_[3] = {6, 10, 14};
 #pragma comment(lib, "comdlg32.lib")
 
 WNDPROC wpOrigEditProc;
-DWORD rgbWindowBackground;
 
 wchar_t *GetResourceString(int id, HMODULE module = NULL) {
     HRSRC hRC;
@@ -73,8 +72,6 @@ LRESULT MainWindow::OnCreate()
     GetClientRect(m_hwnd, &client);
     GetMessageFont(lf);
     hFont = CreateFontIndirect(&lf);
-    hBrush = GetSysColorBrush(COLOR_WINDOW);
-    rgbWindowBackground = GetSysColor(COLOR_WINDOW);
 
     initial = GetResourceString(RID_INIT);
     if (!initial)
@@ -400,15 +397,10 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_CTLCOLORSTATIC: {
-        HBRUSH white = CreateSolidBrush(RGB(255, 255, 255));
+        HBRUSH white = GetStockBrush(WHITE_BRUSH);
         if ((HWND) lParam == m_messLevel && IsWindowEnabled(m_messLevel))
             return (LRESULT) white;
-        if ((HWND) lParam == m_settings) {
-            SetBkColor((HDC) wParam, GetSysColor(COLOR_3DFACE));
-            return (LRESULT) GetSysColorBrush(COLOR_3DFACE);
-        }
-        SetBkColor((HDC) wParam, rgbWindowBackground);
-        return (LRESULT) hBrush;
+        break;
     }
     case WM_KEYDOWN:
         if (wParam == 'K' && GetKeyState(VK_CONTROL) < 0 &&

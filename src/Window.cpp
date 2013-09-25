@@ -25,7 +25,7 @@ void Window::Register()
     wc.hInstance     = GetInstance();
     wc.hIcon         = GetIcon();
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = CreateSolidBrush(RGB(0xF0, 0xF0, 0xF0));
+    wc.hbrBackground = (HBRUSH) (COLOR_3DFACE + 1);
     wc.lpszMenuName  = NULL;
     wc.lpszClassName = ClassName();
 
