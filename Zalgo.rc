@@ -1,7 +1,7 @@
 #include <resource.h>
 
 RID_ICON ICON Zalgo.ico
-RID_XSAMPA ZALGO_TEXT "res\\x-sampa.txt"
-RID_INIT ZALGO_TEXT "res\\init.txt"
-RID_LOOSE ZALGO_TEXT "res\\loose.txt"
-1 24 "res\\commctrl6.manifest"
+RID_XSAMPA ZALGO_TEXT "res/x-sampa.txt"
+RID_INIT ZALGO_TEXT "res/init.txt"
+RID_LOOSE ZALGO_TEXT "res/loose.txt"
+1 24 "res/commctrl6.manifest"
