@@ -69,7 +69,7 @@ $(SRCDIR)\OptionParser.cpp: $(INCDIR)\OptionParser.h
 $(SRCDIR)\hecomes.cpp: $(INCDIR)\OptionParser.h $(INCDIR)\ZalgoLib.h
 $(SRCDIR)\hegoes.cpp: $(INCDIR)\OptionParser.h $(INCDIR)\ZalgoLib.h
 
-$(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt
+$(OUTDIR)\Zalgo.res: Zalgo.rc res\x-sampa.txt res\init.txt commctrl6.manifest
 	$(RC) $(RCFLAGS) /fo$@ Zalgo.rc
 
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj::
