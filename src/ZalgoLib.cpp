@@ -40,7 +40,7 @@ ZalgoProcess &ZalgoProcess::open() {
         infile = std::fopen(input.c_str(), "r,ccs=UTF-8");
     if (infile == NULL)
         throw std::string("Can't open input file: ") + input;
-    
+
     if (output == "-")
         outfile = stdout;
     else
@@ -56,19 +56,16 @@ ZalgoProcess &ZalgoProcess::zalgo(int level, bool up, bool mid, bool down) {
     std::uniform_int_distribution<> dist_mid(level / 6, level / 2);
     std::uniform_int_distribution<> dist_down(level / 3, level);
     bool initial = true;
+    wint_t ch;
 
-    while (true) {
-        wint_t ch = fgetwc(infile);
-        if (ch == WEOF)
-            return *this;
-        
+    while ((ch = fgetwc(infile)) != WEOF) {
         if (ch == 0xFEFF)
             continue;
         if (ch == L'?' && initial) {
             initial = false;
             continue;
         }
-        
+
         fputwc(ch, outfile);
         switch (ch) {
             case L' ':
@@ -88,26 +85,26 @@ ZalgoProcess &ZalgoProcess::zalgo(int level, bool up, bool mid, bool down) {
         IMPLEMENT_ZALGO(mid);
         IMPLEMENT_ZALGO(down);
     }
+    return *this;
 }
 
 ZalgoProcess &ZalgoProcess::unzalgo() {
     bool initial = true;
-    while (true) {
-        wint_t ch = fgetwc(infile);
-        if (ch == WEOF)
-            return *this;
-        
+    wint_t ch;
+
+    while ((ch = fgetwc(infile)) != WEOF) {
         if (ch == 0xFEFF)
             continue;
         if (ch == L'?' && initial) {
             initial = false;
             continue;
         }
-        
+
         if (ch >= 0x0300 && ch < 0x0370 || ch == 0x489)
             continue;
         fputwc(ch, outfile);
     }
+    return *this;
 }
 
 ZalgoProcess &ZalgoProcess::close() {
