@@ -218,30 +218,6 @@ LRESULT MainWindow::OnDestroy()
 {
     SetWindowLongPtr(m_message, GWL_WNDPROC, (LONG_PTR) wpOrigEditProc);
 
-    DestroyWindow(m_message);
-    DestroyWindow(m_settings);
-    DestroyWindow(m_goUp);
-    DestroyWindow(m_goMiddle);
-    DestroyWindow(m_goDown);
-    DestroyWindow(m_messMini);
-    DestroyWindow(m_messNormal);
-    DestroyWindow(m_messMax);
-    DestroyWindow(m_messCustom);
-    DestroyWindow(m_messLevel);
-    DestroyWindow(m_messUpDown);
-    DestroyWindow(m_mess);
-    DestroyWindow(m_unmess);
-    DestroyWindow(m_previewShow);
-    DestroyWindow(m_use_utf8);
-    DestroyWindow(m_load);
-    DestroyWindow(m_save);
-    DestroyWindow(m_nfc);
-    DestroyWindow(m_nfd);
-    DestroyWindow(m_latin);
-    DestroyWindow(m_cyrillic);
-    DestroyWindow(m_greek);
-    DestroyWindow(m_xsampa);
-    DestroyWindow(m_xsampa_table);
     delete m_preview;
     delete m_data_display;
     return 0;
