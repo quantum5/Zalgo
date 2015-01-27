@@ -126,17 +126,17 @@ void MainWindow::OnTextCyrillic()
     HLOCAL buf = Edit_GetHandle(m_message);
     wstring cyrillic, temp;
     LPWSTR text = (LPWSTR) LocalLock(buf);
-    
+
     for (; *text; ++text) {
         temp = wstring(text, 2);
-        
+
         if (latin_cyrillic.count(temp)) {
             cyrillic.push_back(latin_cyrillic.at(temp));
             ++text;
         } else if (tolower(*text) == 'c') {
             // special handling of C
             int lower = tolower(*(text + 1));
-            
+
             temp.clear();
             if (lower == 'k')
                 continue;
@@ -174,7 +174,7 @@ void MainWindow::OnTextLatin()
     HLOCAL buf = Edit_GetHandle(m_message);
     wstring latin, temp;
     LPWSTR text = (LPWSTR) LocalLock(buf);
-    
+
     for (; *text; ++text) {
         if (*(text + 1) == 0x0419 || *(text + 1) == 0x0439) {
             if (*text == 0x0418 || *text == 0x0438 ||
@@ -201,7 +201,7 @@ void MainWindow::OnTextGreek()
     HLOCAL buf = Edit_GetHandle(m_message);
     wstring greek, temp;
     LPWSTR text = (LPWSTR) LocalLock(buf);
-    
+
     for (; *text; ++text) {
         temp = wstring(text, 2);
         if (latin_greek.count(temp)) {
@@ -210,7 +210,7 @@ void MainWindow::OnTextGreek()
         } else if (tolower(*text) == 'c') {
             // special handling of C
             int lower = tolower(*(text + 1));
-            
+
             temp.clear();
             if (lower == 'k')
                 continue;
@@ -224,7 +224,7 @@ void MainWindow::OnTextGreek()
             greek.push_back(latin_greek.at(temp));
         else
             greek.push_back(*text);
-        
+
         if (greek.back() == 0x03c3 && (*(text+1) < 'A' || *(text+1) > 'Z') &&
                 (*(text+1) < 'a' || *(text+1) > 'z')) {
             greek.pop_back();
@@ -240,10 +240,10 @@ void MainWindow::OnTextXSAMPA()
     HLOCAL buf = Edit_GetHandle(m_message);
     wstring ipa, temp;
     LPWSTR text = (LPWSTR) LocalLock(buf);
-    
+
     for (; *text; ++text) {
         temp = wstring(text, 4);
-        
+
         while (!temp.empty()) {
             if (x_sampa.count(temp)) {
                 wchar_t out = x_sampa.at(temp);
@@ -253,7 +253,7 @@ void MainWindow::OnTextXSAMPA()
                 break;
             } else temp.pop_back();
         }
-        
+
         if (temp.empty())
             ipa.push_back(*text);
     }
